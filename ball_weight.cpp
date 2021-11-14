@@ -41,8 +41,8 @@ void set_game() {
 	auto scene = Scene::create("", "Images/배경.png");
 	int ballnum[9] = { 1,2,3,4,5,6,7,8,9 };
 	bool moved[6] = { false, false, false, false, false, false };
-	bool choose = false;
-	int round = 1, can_try, pick_num = 2;
+	int choose =0;
+	int round = 1, can_try, pick_num = 0;
 	int correct = 0, wrong = 0;
 	ball balls[6],pick[6];
 	ball moved_ball;
@@ -79,10 +79,11 @@ void set_game() {
 			int num = game_index(object);
 			if (move_num < can_try) {
 				if (moved[num] == false) {
-					if (choose) {
+					if (choose==1) {
 						obj[num]->locate(scene, 550, 500);
 						moved[num] = true;
 						move_num++;
+						choose++;
 						if (balls[num].Is_big(moved_ball)) {
 							small->show();
 							big->hide();
@@ -92,32 +93,39 @@ void set_game() {
 							small->hide();
 						}
 					}
-					else {
+					else if(choose==0) {
 						obj[num]->locate(scene, 350, 500);
-						moved[num] = true;
-						choose = true;
+						moved[num] = true;						
 						moved_ball = balls[num];
+						choose++;
 					}
 				}
 				else {
-					obj[num]->locate(scene, x[num], 900);
-					moved[num] = false;
-					choose = false;
+					for (i = 0;i < 6;i++) {
+						obj[i]->locate(scene, x[i], 900);
+						moved[i] = false;
+					}
+					choose =choose-2;
 					big->hide();
 					small->hide();
 				}
 			}
 			else {
 				if (moved[num]) {
-					obj[num]->locate(scene, x[num], 900);
-					moved[num] = false;
+					for (i = 0;i < 6;i++) {
+						obj[i]->locate(scene, x[i], 900);
+						moved[i] = false;
+					}
 					big->hide();
 					small->hide();
-					pick_num--;
+					pick_num=0;
+					choose = 0;
 				}
-				else {
+				else if(choose==0){
 					pick[pick_num] = balls[num];
-					balls[num].locate(scene, x[pick_num], 500);
+					moved[num] = true;
+					if(round<4) balls[num].locate(scene, x[pick_num+1], 500);
+					else balls[num].locate(scene, x[pick_num], 500);
 					pick_num++;
 				}
 			}
@@ -191,7 +199,8 @@ void set_game() {
 		round++;
 		printf("%d %d %d\n", correct, wrong, round);
 		pick_num = 2,move_num=0;
-		choose = false;
+		for (int i = 0;i < 6;i++) moved[i] = false;
+		choose = 0;
 		//무게와 공을 다시 랜덤 배정, 라운드에 따라  다음라운드 시도 횟수도 조정
 		if (round < 10) {
 			for (int i = 0; i < 9; i++) {
